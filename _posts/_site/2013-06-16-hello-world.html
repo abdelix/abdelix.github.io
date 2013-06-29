@@ -1,0 +1,23 @@
+<h1 id='hola_mundo'>HOLA MUNDO</h1>
+
+<p>Esta es una prueba</p>
+
+<ul>
+<li>eo</li>
+
+<li>2</li>
+</ul>
+
+<p><strong>tachado</strong> <em>cursiva</em></p>
+
+<p><em>negrita</em> <em><em>mezclemos</em></em></p>
+
+<h3 id='hey'>hey</h3>
+<div class='highlight'><pre><code class='ruby'><span class='k'>def</span> <span class='nf'>show</span>
+  <span class='vi'>@widget</span> <span class='o'>=</span> <span class='no'>Widget</span><span class='p'>(</span><span class='n'>params</span><span class='o'>[</span><span class='ss'>:id</span><span class='o'>]</span><span class='p'>)</span>
+  <span class='n'>respond_to</span> <span class='k'>do</span> <span class='o'>|</span><span class='nb'>format</span><span class='o'>|</span>
+    <span class='nb'>format</span><span class='o'>.</span><span class='n'>html</span> <span class='c1'># show.html.erb</span>
+    <span class='nb'>format</span><span class='o'>.</span><span class='n'>json</span> <span class='p'>{</span> <span class='n'>render</span> <span class='ss'>json</span><span class='p'>:</span> <span class='vi'>@widget</span> <span class='p'>}</span>
+  <span class='k'>end</span>
+<span class='k'>end</span>
+</code></pre></div>
