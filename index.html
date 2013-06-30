@@ -2,17 +2,17 @@
 layout: default
 title: Main Page 
 ---
-<h1> Posts </h1>
+<h1> {{ paginator.total_posts }} Posts </h1>
 
 	
 
 
-
 <div class="row-fluid">
   <div class="span12">
+	
 	  
 	  
-	  {% for post in paginator.posts limit:10 %}
+	  {% for post in paginator.posts  %}
 
    
 	  
@@ -25,7 +25,8 @@ title: Main Page
     
    
 
-{% endfor %}
+    {% endfor %}
+
   </div>
 </div>
 
