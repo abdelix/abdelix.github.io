@@ -5,7 +5,7 @@
    <channel>
       <title>{{site.name}}</title>
       <link>{{ site.url }}</link>
-      <description>Abdelfetah Hadij personal blog.</description>
+      <description>Abdelfetah Hadij  blog.</description>
      
       <lastBuildDate>{{ site.time | date_to_xmlschema }}</lastBuildDate>
       
