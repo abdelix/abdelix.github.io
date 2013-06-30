@@ -1,9 +1,11 @@
 ---
+layout: nil
+title : RSS Feed
 ---
 <?xml version="1.0"?>
 <rss version="2.0">
    <channel>
-      <title>{{site.name}}</title>
+      <title>{{ site.name }}</title>
       <link>{{ site.url }}</link>
       <description>Abdelfetah Hadij  blog.</description>
      
@@ -23,7 +25,7 @@
 		 <pubDate>{{ post.date | date_to_xmlschema }}</pubDate>
       </item>
       
-       {% enfor %}
+       {% endfor %}
      
    </channel>
 </rss>
