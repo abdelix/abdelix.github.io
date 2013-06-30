@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+<rss version="2.0">
+   <channel>
+      <title>{{site.name}}</title>
+      <link>{{ site.url }}</link>
+      <description>Abdelfetah Hadij personal blog.</description>
+     
+      <lastBuildDate>{{ site.time | date_to_xmlschema }}</lastBuildDate>
+      
+      {% for post in site.posts %}
+      
+     
+      <item>
+         <title>{{post.title}}</title>
+         <link>{{post.url}}</link>
+         <description>
+			{{post.content |  xml_escape }}
+         </description>
+         <link>{{ site.production_url }}{{ post.url }}</link>
+		 <guid>{{ site.production_url }}{{ post.id }}</guid>
+		 <pubDate>{{ post.date | date_to_xmlschema }}</pubDate>
+      </item>
+      
+       {% enfor %}
+     
+   </channel>
+</rss>
