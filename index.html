@@ -4,8 +4,24 @@ title: Main Page
 ---
 <div class="row-fluid">
   <div class="span12">
-	  <h1> Welcome This is my personal page ,</h1>
 	  
+	<h2> Latest Blog Posts </h2>
+	<ul>
+	 {% for post in site.posts limit:5 %}
+	 <li>
+        <h2>{{ post.title }}</h2>
+	    <h4>{{ post.date | date: "%d-%m-%Y" }}</h4>
+	    <p>
+			{{post.content}}
+			    
+	    </p>
+    
+	 {% endfor %}
+	 </li>
+	</ul>  
+	<hr>
+
+	<a href="/blog" class="btn btn-large btn-primary disabled">More Posts...</a>
   </div>
 </div>
 
