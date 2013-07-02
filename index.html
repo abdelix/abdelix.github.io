@@ -4,24 +4,23 @@ title: Main Page
 ---
 <div class="row-fluid">
   <div class="span12">
-	  
+	 
 	<h2> Latest Blog Posts </h2>
-	<ul>
+	
 	 {% for post in site.posts limit:5 %}
-	 <li>
-        <h2>{{ post.title }}</h2>
-	    <h4>{{ post.date | date: "%d-%m-%Y" }}</h4>
+	 
+        <h2><a href="{{post.url}}">{{ post.title }}</a>    <span><code> {{ post.date | date: "%d/%m/%Y" }}</code> </span></h2> 
+	    <blockquote>
 	    <p>
 			{{post.content}}
 			    
 	    </p>
-    
+        </blockquote>
 	 {% endfor %}
-	 </li>
-	</ul>  
+	 
 	<hr>
 
-	<a href="/blog" class="btn btn-large btn-primary disabled">More Posts...</a>
+	<a href="/blog" class="btn btn-large btn-primary disabled text-align: center">More Posts...</a>
   </div>
 </div>
 

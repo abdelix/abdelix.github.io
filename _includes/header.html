@@ -2,11 +2,15 @@
 <html lang="en">
   <head>
     <meta charset="utf-8">
-    <title>{{ site.name }}</title>
+    <title>{{ site.name }}:{{page.title}}</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="{{ site.description }}">
      <!-- syntax highlighting CSS -->
         <link rel="stylesheet" href="/css/syntax.css">
+        
+        
+        
+        
 
     <link href="/css/bootstrap.css" rel="stylesheet">
     <style>
@@ -24,10 +28,11 @@ ript>
   </head>
 
   <body>
-
+ 
     <div class="navbar navbar-inverse navbar-fixed-top">
       <div class="navbar-inner">
         <div class="container">
+		
 			
           <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
             <span class="icon-bar"></span>
@@ -58,15 +63,9 @@ ript>
               
               </li>
               
-              <li class="active">
               
-               <a href="http:///github.com/abdelix/">
-				<img src="/img/github.png"  title="My GitHub page" class="img-rounded" width="24" height="24">
-                </a>
-              
-              </li>
-              
-            </ul>
+             </ul>
+             
            
             
             
@@ -81,9 +80,16 @@ ript>
 					</a>
 					
 					<ul class="dropdown-menu">
-						<li> <a href="/mush"> µSH </a></li>
-						<li> <a href="/muftp"> µFTP </a></li>
-						<li> <a href="/gravitoid"> Gravitoid </a></li>
+						<li> <a href="/projects"> All projects </a></li>
+						<hr>
+						{% for page in site.pages %}
+						
+						{% if page.category== 'projects' %}
+						
+						<li> <a href="{{page.url}}"> {{page.title}} </a></li>
+						{%endif %}
+						{% endfor %}
+						
 					</ul>
 				</li>
             
@@ -91,8 +97,7 @@ ript>
             
           </div>
           
-		 
-          
+		  <a href="https://github.com/abdelix"><img  height="110" width="110" style="position: absolute; top: 0; right: 0; border: 0;" src="/img/forkme.png" alt="Fork me on GitHub"></a>          
         </div>
       </div>
     </div>
