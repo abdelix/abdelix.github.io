@@ -8,9 +8,9 @@ paginate: 10
 paginate_path: "./blog/page:num"
 
 
-maruku:
-  use_tex:    true
-  use_divs:   true
-  png_engine: blahtex
-  png_dir:    images/latex/
-  png_url:    /images/latex/
+#maruku:
+  #use_tex:    true
+  #use_divs:   true
+  #png_engine: blahtex
+  #png_dir:    images/latex/
+  #png_url:    /images/latex/
