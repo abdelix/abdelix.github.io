@@ -6,7 +6,7 @@ description : A Micro Unix SHell.
 
 ---
 ## muSH or µSH
-By Abdelfetah Hadij \(<abdel.14@gmail.com>\)
+By Abdelfetah Hadij (email at footer)
 A Micro Unix SHell.
 
 
