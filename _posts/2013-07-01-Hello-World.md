@@ -7,4 +7,4 @@ title: Hello World
  
  `$ echo "Hello World!!"`
 
-Esta es la ecucacion $ e^{\pi}+1=0 $
+

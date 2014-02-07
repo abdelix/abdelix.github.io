@@ -51,6 +51,6 @@ In the same directory as before (build) you must run the shell as :
 
 ---------------------
     
-Last change date : {{site.time | date_to_string}}.
+Last time updated : {{site.time | date_to_string}}.
 
 
