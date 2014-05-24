@@ -1,6 +1,6 @@
 ---
 layout: post
-title: Gatling : an handy and tiny web server
+title: "Gatling : an handy and tiny web server"
 ---
 
 Basicaly  gatling  is  a HTTP and FTP server that will export the current working directory to the world.
