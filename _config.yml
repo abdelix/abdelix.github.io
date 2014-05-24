@@ -4,6 +4,9 @@ description: "Abdelfetah Hadij personal website"
 url: "abdelix.github.io"
 pygments: true
 
+markdown: kramdown
+
+
 paginate: 10
 paginate_path: "./blog/page:num"
 
