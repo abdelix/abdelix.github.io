@@ -51,6 +51,8 @@ In a shell you must run in the main directory of the project :
 In the same directory as before (build) you must run the shell as :
 
 	$ ./mush
+	
+	
 ------------
     
 Last time updated : {{site.time | date_to_string}}.
