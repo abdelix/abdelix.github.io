@@ -6,7 +6,7 @@ description : A Micro Unix SHell.
 
 ---
 ## muSH or µSH
-By Abdelfetah Hadij (email at footer)
+By Abdelfetah Hadij 
 A Micro Unix SHell.
 
 
@@ -19,11 +19,11 @@ A Micro Unix SHell.
 * Persistent History.
 * History navigation.
 * Path  completion with tab.
-
-#### To- do 
 * Pipeling
+#### To- do 
+
 * Command completion
-* 
+
 
 
 #### Get the source
@@ -41,15 +41,16 @@ This shell only depends on standard posix libraries and [GNU Readline](gnu.org)
 
 In a shell you must run in the main directory of the project :
 	
+	
 	$ cd build/
+	$ cmake
 	$ make
 
 #### Run
 In the same directory as before (build) you must run the shell as :
 
 	$ ./mush
-
----------------------
+------------
     
 Last time updated : {{site.time | date_to_string}}.
 
