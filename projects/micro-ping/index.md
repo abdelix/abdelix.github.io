@@ -5,9 +5,10 @@ category: 'projects'
 description : A minimal implementation of the classical ping command.
 
 ---
-## muSH or µSH
+## micro-ping
 By Abdelfetah Hadij 
-A Micro Unix SHell.
+
+A minimal implementation of the classical ping command.
 
 
 
