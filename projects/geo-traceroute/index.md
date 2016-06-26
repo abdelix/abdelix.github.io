@@ -30,9 +30,9 @@ A traceroute wich gives you the geographical location of the intemediate nodes.
 
 #### Dependencies
 
-The dependencies are :
-* Standard Unix libs
-* [nxjson](https://bitbucket.org/yarosla/nxjson/overview) : A lib for parsing json
+
+* Standard Unix libraries
+* [nxjson](https://bitbucket.org/yarosla/nxjson/overview)
 * [curl](http://curl.haxx.se/‎)
 
 
@@ -46,7 +46,7 @@ In a shell you must run in the main directory of the project :
 #### Run
 In order to run tou must either run it as root or set the coresponding capabilities to the executable(as root)
 
-I
+
 
 	$ ./geo-traceroute
 
