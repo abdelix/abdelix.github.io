@@ -2,7 +2,7 @@
 layout: default
 title: All Projects
 ---
-These are my projects  :  
+
         
         
 
