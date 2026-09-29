@@ -2,10 +2,12 @@
 layout: page
 permalink: /patents/
 title: patents
-description: Granted patents and patent applications. Synced automatically from my <a href="https://orcid.org/0000-0002-8363-7423">ORCID record</a>.
+description: Granted patents and patent applications.
 nav: true
 nav_order: 2
 ---
+
+This list is updated automatically every week from my [ORCID record](https://orcid.org/0000-0002-8363-7423).
 
 <!-- _pages/patents.md -->
 <!-- Generated from _bibliography/patents.bib, which bin/sync_orcid.py rebuilds from ORCID works of type "patent". -->
