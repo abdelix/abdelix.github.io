@@ -26,6 +26,7 @@ There is no test suite. A change is validated by running `jekyll build` and chec
   - `_data/cv.yml` is the CV data, a condensed version of the author's PDF CV.
   - `_data/socials.yml` holds the social links.
 - **Do not add** `_layouts/`, `_includes/`, `_sass/` or `assets/tailwind/` unless you are deliberately overriding a gem file. Look at the gem source first: `bundle info al_folio_core --path`.
+- **Local override:** `_layouts/bib.liquid` is a copy of al_folio_core's layout, changed only so that `abbr` can hold several badges separated by `|` (one badge per patent country, plus "Conference"). When upgrading al_folio_core, diff it against the gem's version and re-apply that one block. Badge colours come from `_data/venues.yml`, keyed by badge text.
 - **Plugins must be listed in two places.** A plugin has to appear in both `Gemfile` and the `plugins:` list in `_config.yml`, otherwise it is inert. Disabled features render nothing and raise no error.
 - **Publications and patents are generated.** `bin/sync_orcid.py` (standard library only) reads the public ORCID record `0000-0002-8363-7423`:
   - Works with a DOI are filled in from Crossref; the rest fall back to ORCID metadata.

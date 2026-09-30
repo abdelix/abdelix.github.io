@@ -207,7 +207,9 @@ def finish_patent(entry):
     number, holder = entry.get("number"), entry.get("holder")
     entry["additional_info"] = " · ".join(x for x in (number, holder) if x)
     if number and not entry.get("abbr"):
-        entry["abbr"] = f"{number[:2]} Patent"
+        # One badge per country the family is published in (split on "|" by _layouts/bib.liquid).
+        countries = [number[:2]] + [country for country, _, _ in PUB_NUMBER.findall(entry.get("note") or "")]
+        entry["abbr"] = "|".join(f"{country} Patent" for country in dict.fromkeys(countries))
     if entry.get("url") and not entry.get("website"):
         entry["website"] = entry.pop("url")
     return entry
