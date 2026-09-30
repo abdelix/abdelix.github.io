@@ -228,6 +228,7 @@ exclude:
   - _pages/about_einstein.md
   - purgecss.config.js
   - README.md
+  - TODO.md
   - requirements.txt
   - readme_preview/
   - gems/
