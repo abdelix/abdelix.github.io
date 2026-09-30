@@ -5,7 +5,9 @@ Writes two files that jekyll-scholar renders:
 
   _bibliography/papers.bib   every ORCID work that is not a patent, followed by
                              the hand-written entries in _bibliography/manual.bib
-  _bibliography/patents.bib  every ORCID work of type "patent"
+  _bibliography/patents.bib  every ORCID work of type "patent", followed by the
+                             entries in _bibliography/patents_manual.bib whose
+                             patent family was not found automatically
 
 Works with a DOI are described from Crossref metadata (full author list, venue,
 volume, pages, abstract); works without one fall back to what ORCID stores.
@@ -172,6 +174,52 @@ def from_orcid(orcid, summary):
     return entry
 
 
+PUB_NUMBER = re.compile(r"\b([A-Z]{2})\s?(\d{6,12})\s?([A-Z]\d?)?\b")
+
+
+def normalize_pub_number(country, number):
+    """Canonical form of a patent publication number, without kind code.
+
+    US pre-grant publications are written with an 11-digit number (US20240004261A1)
+    but EPO's DOCDB format drops the zero after the year (US2024004261).
+    """
+    if country == "US" and len(number) == 11 and number[4] == "0":
+        number = number[:4] + number[5:]
+    return country + number.lstrip("0")
+
+
+def pub_numbers(text):
+    """All publication numbers mentioned in a string, normalised."""
+    return {normalize_pub_number(c, n) for c, n, _ in PUB_NUMBER.findall(text or "")}
+
+
+def finish_patent(entry):
+    """Fill the fields the al-folio bib layout shows for a patent."""
+    number, holder = entry.get("number"), entry.get("holder")
+    entry["additional_info"] = " · ".join(x for x in (number, holder) if x)
+    if number and not entry.get("abbr"):
+        entry["abbr"] = f"{number[:2]} Patent"
+    if entry.get("url") and not entry.get("website"):
+        entry["website"] = entry.pop("url")
+    return entry
+
+
+def manual_patents(covered):
+    """Entries of patents_manual.bib whose family is not already in `covered`."""
+    path = BIB_DIR / "patents_manual.bib"
+    if not path.exists():
+        return []
+    kept = []
+    for text in re.split(r"\n(?=@)", path.read_text(encoding="utf-8")):
+        if not text.startswith("@"):
+            continue  # file header comments
+        fields = re.findall(r"^\s*(?:number|note)\s*=\s*\{(.*?)\},?$", text, flags=re.M)
+        if pub_numbers(" ".join(fields)) & covered:
+            continue
+        kept.append(text.strip() + "\n")
+    return kept
+
+
 def make_key(entry, used):
     first = entry["author"][0] if entry["author"] else OWN_FAMILY_NAME
     family = first.split(",")[0] if "," in first else first.split()[-1]
@@ -187,15 +235,15 @@ def make_key(entry, used):
 
 def to_bibtex(key, entry):
     fields = []
-    order = ["title", "author", "journal", "booktitle", "publisher", "volume", "number", "pages", "year", "month"]
-    order += ["doi", "url", "abbr", "abstract", "selected", "bibtex_show"]
+    order = ["title", "author", "journal", "booktitle", "publisher", "holder", "volume", "number", "pages", "year", "month"]
+    order += ["additional_info", "note", "doi", "url", "website", "abbr", "abstract", "selected", "bibtex_show"]
     for name in order:
         value = entry.get(name)
         if name == "author" and value:
             value = " and ".join(value)
         if value in (None, "", []):
             continue
-        value = value if name in ("url", "doi") else bib_escape(value)
+        value = value if name in ("url", "website", "doi") else bib_escape(value)
         fields.append(f"  {name} = {{{value}}}")
     return f"@{entry['type']}{{{key},\n" + ",\n".join(fields) + "\n}\n"
 
@@ -227,9 +275,19 @@ def build(orcid):
     manual = BIB_DIR / "manual.bib"
     if manual.exists():
         papers_bib += "\n% ---- Entries copied from _bibliography/manual.bib ----\n\n" + manual.read_text(encoding="utf-8")
-    patents_bib = header + "% list patents as works of type 'Patent' on ORCID to have them appear here.\n\n"
+    def numbers_of(entry):
+        return pub_numbers(f"{entry.get('number', '')} {entry.get('note', '')}")
+
+    patents = [finish_patent(e) for e in patents]
+    covered = set()
+    for e in patents:
+        covered |= numbers_of(e)
+    manual_entries = manual_patents(covered)
+    patents_bib = header + "% add patents that are not found automatically to _bibliography/patents_manual.bib.\n\n"
     patents_bib += "\n".join(to_bibtex(make_key(e, used), e) for e in sorted(patents, key=by_date, reverse=True))
-    return papers_bib, patents_bib, len(papers), len(patents)
+    if manual_entries:
+        patents_bib += "\n% ---- Entries copied from _bibliography/patents_manual.bib ----\n\n" + "\n".join(manual_entries)
+    return papers_bib, patents_bib, len(papers), len(patents) + len(manual_entries)
 
 
 def main():
