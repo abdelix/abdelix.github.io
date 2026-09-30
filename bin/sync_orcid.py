@@ -152,6 +152,17 @@ def from_crossref(doi):
     return entry
 
 
+def openalex_abstract(doi):
+    """Abstract from OpenAlex, for papers whose Crossref record has none.
+
+    OpenAlex stores abstracts as an inverted index ({word: [positions]}), rebuilt here into text.
+    """
+    work = fetch_json("https://api.openalex.org/works/doi:" + urllib.parse.quote(doi)) or {}
+    index = work.get("abstract_inverted_index") or {}
+    words = sorted((pos, word) for word, positions in index.items() for pos in positions)
+    return clean_text(" ".join(word for _, word in words))
+
+
 def from_orcid(orcid, summary):
     work = fetch_json(f"https://pub.orcid.org/v3.0/{orcid}/work/{summary['put-code']}") or summary
     date = work.get("publication-date") or {}
@@ -436,6 +447,8 @@ def build(orcid):
         entry = (from_crossref(doi) if doi else None) or from_orcid(orcid, summary)
         if doi:
             entry["doi"] = doi.lower()
+            if not entry.get("abstract"):
+                entry["abstract"] = openalex_abstract(doi)
         if summary.get("type") == "patent":
             entry["type"] = "patent"
         entry["bibtex_show"] = "true"
