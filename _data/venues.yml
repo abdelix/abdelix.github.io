@@ -1,0 +1,4 @@
+# Badge colours for the publication/patent lists (_layouts/bib.liquid), keyed by badge text (`abbr`).
+# Badges not listed here use the theme's accent colour (journal articles).
+"Conference":
+  color: "#2b7bb9"

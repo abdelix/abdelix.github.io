@@ -439,6 +439,9 @@ def build(orcid):
         if summary.get("type") == "patent":
             entry["type"] = "patent"
         entry["bibtex_show"] = "true"
+        # Mark conference presentations with their own badge (badges are split on "|" by _layouts/bib.liquid).
+        if entry["type"] == "inproceedings":
+            entry["abbr"] = "|".join(b for b in ("Conference", entry.get("abbr")) if b)
         # Highlight first-author journal papers on the about page.
         if entry["type"] == "article" and entry["author"] and entry["author"][0].startswith(OWN_FAMILY_NAME):
             entry["selected"] = "true"
