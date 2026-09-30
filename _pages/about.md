@@ -27,7 +27,8 @@ I'm a photonic design engineer at [LIGENTEC](https://www.ligentec.com/) in Lausa
 optical structures that guide light on and off photonic chips. Before that I did my PhD in integrated photonics at the
 [Universidad de Málaga](https://www.uma.es/).
 
-I'm passionate about **open source software**. Away from work I like tinkering with electronics, spending time in
-nature and doing sports, and above all I love **football**.
+I love learning new things by experimenting and building them myself, anything from electronics projects to
+compiling the Linux kernel, and I'm passionate about **open source software**. Away from the desk you'll find me out
+in nature, playing **football** (I'd much rather play it than watch it) or **dancing**.
 
 Have a look at my [publications](/publications/) and [patents](/patents/), or get in touch below.
