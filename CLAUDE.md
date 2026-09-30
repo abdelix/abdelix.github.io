@@ -29,12 +29,13 @@ There is no test suite. A change is validated by running `jekyll build` and chec
 - **Plugins must be listed in two places.** A plugin has to appear in both `Gemfile` and the `plugins:` list in `_config.yml`, otherwise it is inert. Disabled features render nothing and raise no error.
 - **Publications and patents are generated.** `bin/sync_orcid.py` (standard library only) reads the public ORCID record `0000-0002-8363-7423`:
   - Works with a DOI are filled in from Crossref; the rest fall back to ORCID metadata.
-  - Non-patent works go to `_bibliography/papers.bib`, followed by the contents of `_bibliography/manual.bib`. Patents go to `patents.bib`.
+  - Non-patent works go to `_bibliography/papers.bib`, followed by the contents of `_bibliography/manual.bib`.
+  - Patents go to `patents.bib`. They are searched on EPO Open Patent Services by inventor name, which needs `EPO_OPS_KEY`/`EPO_OPS_SECRET` (GitHub repository secrets in CI, a git-ignored `.env` locally; without them the search is skipped). ORCID patents and `_bibliography/patents_manual.bib` fill the gaps. Entries are deduplicated per patent family using the publication numbers in `number` and `note`.
   - First-author journal articles get `selected = {true}`, which shows them on the about page.
   - Never edit `papers.bib` or `patents.bib` by hand. Add missing items to `manual.bib`, or better, add them to ORCID.
 - **CI:**
   - `.github/workflows/deploy.yml` builds on pushes to `master` and publishes `_site` to the `gh-pages` branch. GitHub Pages must be set to serve from `gh-pages`.
-  - `.github/workflows/sync-orcid.yml` runs the ORCID sync every Monday, commits any changes, and then starts `deploy.yml` explicitly. It has to, because a push made with `GITHUB_TOKEN` does not trigger other workflows.
+  - `.github/workflows/sync-orcid.yml` runs the sync every Monday, commits any changes, and then starts `deploy.yml` explicitly. It has to, because a push made with `GITHUB_TOKEN` does not trigger other workflows.
 - **Projects:** the old 2013–2014 student projects live in `_projects/` with `category: archived` and an "Archived project" notice. Their permalinks `/projects/<name>/` match the legacy site.
 - **Page descriptions:** front-matter `description` values end up in `<meta>` tags, so keep them plain text with no HTML links.
 - `downloads/memo.html` is a legacy standalone file, kept only so that existing external links keep working.
