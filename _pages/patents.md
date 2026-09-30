@@ -7,8 +7,6 @@ nav: true
 nav_order: 2
 ---
 
-This list is updated automatically every week from the [European Patent Office](https://worldwide.espacenet.com/) and my [ORCID record](https://orcid.org/0000-0002-8363-7423).
-
 <!-- _pages/patents.md -->
 <!-- Generated from _bibliography/patents.bib, which bin/sync_orcid.py rebuilds from EPO OPS, ORCID and _bibliography/patents_manual.bib. -->
 
@@ -21,3 +19,7 @@ This list is updated automatically every week from the [European Patent Office](
 <p>The patent list is being updated. It will appear here automatically once it is available on ORCID.</p>
 {% endif %}
 </div>
+
+<!-- Unpublished application: keep the description generic until it is published (it will then be listed above automatically). -->
+
+_A further patent application on chip-to-fibre interfaces is pending._
