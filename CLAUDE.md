@@ -20,7 +20,7 @@ There is no test suite. A change is validated by running `jekyll build` and chec
 ## Architecture
 
 - **Content locations:**
-  - `_pages/` holds the navbar pages: about (`/`), publications, patents, CV, projects, blog. `nav_order` sets their order.
+  - `_pages/` holds the navbar pages: about (`/`), publications, patents, projects, blog. `nav_order` sets their order. The CV page (`cv.md`) is currently hidden from the navbar with `nav: false` but is still built at `/cv/`.
   - `_projects/` holds the project pages.
   - `_posts/` holds the blog posts. It is currently empty.
   - `_data/cv.yml` is the CV data, a condensed version of the author's PDF CV.
