@@ -1,4 +1,4 @@
-name: Sync publications from ORCID
+name: Sync publications and patents
 
 on:
   schedule:
@@ -20,6 +20,10 @@ jobs:
         with:
           python-version: "3.13"
       - name: Regenerate bibliographies 📚
+        env:
+          # Optional: without these repository secrets the EPO patent search is skipped.
+          EPO_OPS_KEY: ${{ secrets.EPO_OPS_KEY }}
+          EPO_OPS_SECRET: ${{ secrets.EPO_OPS_SECRET }}
         run: python3 bin/sync_orcid.py
       - name: Commit changes and redeploy 🚀
         env:

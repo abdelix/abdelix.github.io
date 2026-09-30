@@ -11,14 +11,21 @@ Writes two files that jekyll-scholar renders:
 
 Works with a DOI are described from Crossref metadata (full author list, venue,
 volume, pages, abstract); works without one fall back to what ORCID stores.
+
+Patents are also searched on EPO Open Patent Services by inventor name, one entry
+per patent family. This needs EPO_OPS_KEY and EPO_OPS_SECRET, read from the
+environment or a git-ignored .env file; without them the EPO search is skipped.
+
 Only the Python standard library is used so it runs anywhere, including CI.
 
 Usage:  python3 bin/sync_orcid.py [--orcid 0000-0002-8363-7423]
 """
 
 import argparse
+import base64
 import html
 import json
+import os
 import re
 import sys
 import time
@@ -57,8 +64,8 @@ CROSSREF_TYPES = {
 }
 
 
-def fetch_json(url, accept="application/json", retries=3):
-    req = urllib.request.Request(url, headers={"Accept": accept, "User-Agent": USER_AGENT})
+def fetch_json(url, accept="application/json", retries=3, headers=None, data=None):
+    req = urllib.request.Request(url, data=data, headers={"Accept": accept, "User-Agent": USER_AGENT, **(headers or {})})
     for attempt in range(retries):
         try:
             with urllib.request.urlopen(req, timeout=30) as resp:
@@ -204,6 +211,127 @@ def finish_patent(entry):
     return entry
 
 
+def load_env_file():
+    """Read KEY=VALUE lines from a local .env (git-ignored) without overriding the environment."""
+    path = ROOT / ".env"
+    if not path.exists():
+        return
+    for line in path.read_text(encoding="utf-8").splitlines():
+        key, sep, value = line.partition("=")
+        if sep and not key.strip().startswith("#"):
+            os.environ.setdefault(key.strip(), value.strip().strip("'\""))
+
+
+def as_list(value):
+    return value if isinstance(value, list) else ([] if value is None else [value])
+
+
+def ops_text(value):
+    """Text of an OPS JSON node ({"$": "text"})."""
+    return value.get("$", "") if isinstance(value, dict) else (value or "")
+
+
+def ops_names(parties, kind):
+    """Names of inventors/applicants, preferring the 'original' spelling over EPODOC."""
+    people = as_list((parties.get(f"{kind}s") or {}).get(kind))
+    original = [p for p in people if p.get("@data-format") == "original"]
+    names = [ops_text(p[f"{kind}-name"]["name"]) for p in (original or people)]
+    return [re.sub(r"\s*\[[A-Z]{2}\]\s*$", "", n).strip().strip(",").strip() for n in names]
+
+
+def is_self(name):
+    """True for any spelling of the author: Hadij-ElHouati, HADIJ EL HOUATI, 'Hadij, Abdelfettah', ..."""
+    compact = re.sub(r"[^A-Z]", "", ascii_slug(name).upper())
+    return "HADIJELHOUATI" in compact or (compact.startswith("HADIJ") and "ABDELFETTAH" in compact)
+
+
+def ops_person(name):
+    """'HADIJ EL HOUATI, Abdelfettah' / 'CHEBEN PAVEL' -> 'Family, Given'."""
+    if is_self(name):
+        return f"{OWN_FAMILY_NAME}, Abdelfettah"
+    if "," in name:
+        family, given = (part.strip() for part in name.split(",", 1))
+    else:
+        *family_parts, given = name.split()
+        family = " ".join(family_parts)
+    fix = lambda s: s.title() if s.isupper() else s
+    return f"{fix(family)}, {fix(given)}".strip(", ")
+
+
+def display_number(country, number, kind):
+    """US20240004261A1 style (EPO's DOCDB drops the zero after the year in US publications)."""
+    if country == "US" and len(number) == 10 and number.startswith("20"):
+        number = number[:4] + "0" + number[4:]
+    return f"{country}{number}{kind}"
+
+
+def from_epo():
+    """Patent families on EPO Open Patent Services where the author is an inventor.
+
+    Needs EPO_OPS_KEY / EPO_OPS_SECRET (environment or .env); returns [] without them.
+    """
+    key, secret = os.environ.get("EPO_OPS_KEY"), os.environ.get("EPO_OPS_SECRET")
+    if not (key and secret):
+        print("EPO_OPS_KEY/EPO_OPS_SECRET not set: skipping the EPO patent search.", file=sys.stderr)
+        return []
+    basic = base64.b64encode(f"{key}:{secret}".encode()).decode()
+    token = fetch_json(
+        "https://ops.epo.org/3.2/auth/accesstoken",
+        headers={"Authorization": f"Basic {basic}", "Content-Type": "application/x-www-form-urlencoded"},
+        data=b"grant_type=client_credentials",
+    )["access_token"]
+    query = urllib.parse.urlencode({"q": 'in="hadij" or in="hadij-elhouati" or in="hadijelhouati"', "Range": "1-100"})
+    result = fetch_json(
+        f"https://ops.epo.org/3.2/rest-services/published-data/search/biblio?{query}",
+        headers={"Authorization": f"Bearer {token}"},
+    )
+    search = ((result or {}).get("ops:world-patent-data") or {}).get("ops:biblio-search") or {}
+    families = {}
+    for item in as_list((search.get("ops:search-result") or {}).get("exchange-documents")):
+        for doc in as_list(item.get("exchange-document")):
+            bib = doc.get("bibliographic-data") or {}
+            parties = bib.get("parties") or {}
+            inventors = ops_names(parties, "inventor")
+            if not any(is_self(name) for name in inventors):
+                continue  # another inventor who happens to match the query
+            ids = as_list((bib.get("publication-reference") or {}).get("document-id"))
+            docdb = next((d for d in ids if d.get("@document-id-type") == "docdb"), ids[0] if ids else {})
+            titles = as_list(bib.get("invention-title"))
+            title = next((t for t in titles if t.get("@lang") == "en"), titles[0] if titles else {})
+            families.setdefault(doc.get("@family-id") or doc.get("@doc-number"), []).append(
+                {
+                    "country": doc.get("@country", ""),
+                    "number": display_number(doc.get("@country", ""), doc.get("@doc-number", ""), doc.get("@kind", "")),
+                    "date": ops_text(docdb.get("date")),
+                    "title": clean_text(ops_text(title)),
+                    "inventors": [ops_person(n) for n in inventors],
+                    "holder": next(iter(ops_names(parties, "applicant")), ""),
+                }
+            )
+
+    preference = {"WO": 0, "EP": 1, "US": 2}
+    entries = []
+    for docs in families.values():
+        docs.sort(key=lambda d: (preference.get(d["country"], 3), d["date"]))
+        main, others = docs[0], [d["number"] for d in docs[1:]]
+        holder = main["holder"]
+        entries.append(
+            {
+                "type": "patent",
+                "title": main["title"].title() if main["title"].isupper() else main["title"],
+                "author": main["inventors"],
+                "holder": holder.title() if holder.isupper() else holder,
+                "number": main["number"],
+                "year": main["date"][:4] or None,
+                "month": int(main["date"][4:6]) if len(main["date"]) >= 6 else None,
+                "note": "Also published as " + ", ".join(dict.fromkeys(others)) if others else None,
+                "url": f"https://worldwide.espacenet.com/patent/search?q=pn%3D{main['number']}",
+                "bibtex_show": "true",
+            }
+        )
+    return entries
+
+
 def manual_patents(covered):
     """Entries of patents_manual.bib whose family is not already in `covered`."""
     path = BIB_DIR / "patents_manual.bib"
@@ -278,8 +406,13 @@ def build(orcid):
     def numbers_of(entry):
         return pub_numbers(f"{entry.get('number', '')} {entry.get('note', '')}")
 
-    patents = [finish_patent(e) for e in patents]
+    # EPO is the most complete patent source; ORCID and manual entries only fill the gaps.
     covered = set()
+    epo_patents = from_epo()
+    for e in epo_patents:
+        covered |= numbers_of(e)
+    orcid_patents = [e for e in patents if not numbers_of(e) & covered]
+    patents = [finish_patent(e) for e in epo_patents + orcid_patents]
     for e in patents:
         covered |= numbers_of(e)
     manual_entries = manual_patents(covered)
@@ -294,6 +427,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--orcid", default=DEFAULT_ORCID)
     args = parser.parse_args()
+    load_env_file()
     papers_bib, patents_bib, n_papers, n_patents = build(args.orcid)
     (BIB_DIR / "papers.bib").write_text(papers_bib, encoding="utf-8")
     (BIB_DIR / "patents.bib").write_text(patents_bib, encoding="utf-8")

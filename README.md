@@ -17,15 +17,27 @@ Or, without a local Ruby setup: `docker compose up` (serves on http://localhost:
 
 ## Publications and patents
 
-Both lists are generated from my [ORCID record](https://orcid.org/0000-0002-8363-7423):
+Publications are generated from my [ORCID record](https://orcid.org/0000-0002-8363-7423). Patents are searched on the
+European Patent Office's [Open Patent Services](https://developers.epo.org/) and ORCID.
 
 ```sh
 python3 bin/sync_orcid.py
 ```
 
-The **Sync publications from ORCID** GitHub Action runs this every Monday. When anything changed, it commits the updated
-`_bibliography/*.bib` files and redeploys the site. Items that are not on ORCID can be added to
-`_bibliography/manual.bib`.
+The patent search needs an OPS consumer key and secret. Put them in a `.env` file in the repository root, which git
+ignores:
+
+```sh
+EPO_OPS_KEY=your-consumer-key
+EPO_OPS_SECRET=your-consumer-secret
+```
+
+For the scheduled job, add the same two values as repository secrets (*Settings → Secrets and variables → Actions*).
+Without them, the EPO search is skipped.
+
+The **Sync publications and patents** GitHub Action runs the script every Monday. When anything changed, it commits the
+updated `_bibliography/*.bib` files and redeploys the site. Items that are not found automatically can be added to
+`_bibliography/manual.bib` (publications) or `_bibliography/patents_manual.bib` (patents).
 
 ## Deployment
 
