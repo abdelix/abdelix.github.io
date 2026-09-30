@@ -209,7 +209,7 @@ kramdown:
       start_line: 1
 
 # Includes & excludes
-include: ["_pages"]
+include: ["_pages", ".nojekyll"] # .nojekyll stops GitHub Pages from re-running Jekyll on the built site
 exclude:
   - AGENTS.md
   - al-folio-upgrade-report.md
@@ -228,6 +228,7 @@ exclude:
   - _pages/about_einstein.md
   - purgecss.config.js
   - README.md
+  - requirements.txt
   - readme_preview/
   - gems/
   - migrations/
