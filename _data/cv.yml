@@ -1,0 +1,130 @@
+# Summarised CV rendered on /cv/ by the al_folio_cv plugin.
+# Source of truth: the full PDF CV (2026). Keep this file short: highlights only.
+cv:
+  name: Abdelfettah Hadij-ElHouati
+  label: PhD in Integrated Photonics, Photonic Design Engineer
+  address:
+    city: Lausanne
+    region: Switzerland
+  summary: >
+    Photonic design engineer with 8+ years of experience in silicon photonics R&D and industry, specialising in passive
+    component design and EM modelling. Track record of delivering first-time-right designs and building design tools
+    that accelerate development workflows.
+
+  sections:
+    Experience:
+      - company: LIGENTEC SA
+        position: Photonic Design Engineer
+        location: Lausanne, Switzerland
+        url: https://www.ligentec.com/
+        start_date: 2022
+        highlights:
+          - Technical lead of chip-to-fibre interfaces, delivering SMF-coupled devices with < 0.3 dB insertion loss together with the fab and characterization teams.
+          - Designed 50+ devices (spot-size converters, grating couplers, AWGs, star couplers) for the LIGENTEC PDKs and 10+ client projects.
+          - Developed a Python framework around the Lumerical API for large-scale photonic simulations, adopted by 7+ engineers.
+          - Delivered production-ready layouts with IPKISS and GDSFactory and ran feasibility analyses aligned with manufacturing capabilities.
+
+      - company: Bioherent, S.L.
+        position: Photonic Design Engineer (Contractor)
+        location: Málaga, Spain
+        date: 2021
+        summary: System-level chip interface design and Gaussian beam analysis to optimise the beam shape for system integration.
+
+      - company: Carleton University
+        position: Photonic Design Engineer (Contractor, remote)
+        location: Ottawa, Canada
+        date: 2021
+        summary: Developed a design tool for tunable Bragg filters used by the team to design various filter configurations.
+
+      - company: Universidad de Málaga
+        position: Graduate Researcher
+        location: Málaga, Spain
+        start_date: 2017
+        end_date: 2022
+        highlights:
+          - Designed silicon photonic devices including on-chip beam shapers, metamaterial 2×4 hybrids, curved waveguide grating demultiplexers, grating couplers and large-scale steerable antennas.
+          - Built a first-principles modelling tool for curved waveguide grating demultiplexers (MATLAB + RSoft) enabling multiple first-time-right designs.
+          - Produced chip layouts (Python, Nazca Design) and characterised fabricated devices.
+
+      - company: National Research Council Canada
+        position: Visiting Researcher (4 months)
+        location: Ottawa, Canada
+        date: 2019
+        summary: Developed a design tool for curved waveguide grating WDM demultiplexers and designed a low-loss C-band demultiplexer for the SOI platform.
+
+      - company: Universidad de Málaga
+        position: Undergraduate Researcher (BS & MS)
+        location: Málaga, Spain
+        start_date: 2015
+        end_date: 2017
+        summary: Developed a Floquet-Bloch analysis tool (RSoft FullWAVE FDTD) widely used by the team for periodic photonic structures, and designed apodized grating devices.
+
+    Education:
+      - institution: Universidad de Málaga
+        location: Málaga, Spain
+        studyType: PhD in Telecommunication Engineering (cum laude)
+        start_date: 2017
+        end_date: 2022
+        highlights:
+          - 'Thesis: "Highly Efficient Distributed Bragg Deflectors for Silicon Photonic Waveguide Devices" ([hdl.handle.net/10630/25858](https://hdl.handle.net/10630/25858))'
+          - "Supervisors: Prof. Íñigo Molina Fernández and Prof. Pavel Cheben"
+
+      - institution: Universidad de Málaga
+        location: Málaga, Spain
+        studyType: MS in Telecommunication Engineering
+        start_date: 2015
+        end_date: 2017
+        highlights:
+          - "Grade 9/10 (top 10%). Thesis: \"Design and Analysis of a Monolithically Integrated Steerable Optical Antenna\""
+
+      - institution: Universidad de Málaga
+        location: Málaga, Spain
+        studyType: BS in Telecommunication Engineering Technologies
+        start_date: 2011
+        end_date: 2015
+        highlights:
+          - "Grade 9.24/10 (best of promotion). Thesis: \"Design of Integrated Optical Demultiplexers\""
+
+    Awards:
+      - title: Best Student Paper Award
+        date: 2022
+        awarder: ECIO 2022, European Conference on Integrated Optics
+      - title: Silicon Photonics PhD Student Contest 2021, Silver Prize
+        date: 2021
+        awarder: Huawei Technologies Co., Ltd
+      - title: DEKRA Best Master Thesis in Telecommunication Engineering
+        date: 2018
+        awarder: Official Association of Telecommunication Engineering of Southern Spain
+      - title: Best academic record, BS in Telecommunication Engineering Technologies
+        date: 2016
+        awarder: Official Association of Telecommunication Engineering of Southern Spain
+      - title: Extraordinary End of Studies Prize and Best Thesis Prize (BS)
+        date: 2015
+        awarder: Universidad de Málaga
+
+    Skills:
+      - name: Photonic design
+        icon: fa-solid fa-wave-square
+        keywords: [Passive devices on SOI and SiN, Inverse design, Experimental characterization]
+      - name: EM simulation
+        icon: fa-solid fa-calculator
+        keywords: [FDTD, FEM, Mode analysis, EME, Lumerical, RSoft, COMSOL]
+      - name: PIC layout
+        icon: fa-solid fa-draw-polygon
+        keywords: [IPKISS, GDSFactory, Nazca Design]
+      - name: Software & data
+        icon: fa-solid fa-code
+        keywords: [Python, MATLAB, C/C++, C#, Linux, Git, Pandas, Plotly]
+      - name: Other
+        icon: fa-solid fa-wrench
+        keywords: [AI-assisted design workflows (LLM agents), RF & microwave engineering]
+
+    Languages:
+      - name: Spanish
+        summary: Native
+      - name: English
+        summary: Fluent
+      - name: French
+        summary: Intermediate
+      - name: Arabic
+        summary: Intermediate

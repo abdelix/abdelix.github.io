@@ -1,0 +1,8 @@
+# this file contains the social media links and usernames of the author
+# the socials will be displayed in the order they are defined here
+# for more information, please refer to the documentation of jekyll-socials plugin: https://github.com/george-gca/jekyll-socials
+email: abdel.he.93@gmail.com # your email address
+orcid_id: 0000-0002-8363-7423 # your ORCID ID
+github_username: abdelix # your GitHub user name
+linkedin_username: abdelfettah-hadij # your LinkedIn user name
+rss_icon: true # comment this line to hide the RSS icon
