@@ -37,6 +37,8 @@ from pathlib import Path
 
 DEFAULT_ORCID = "0000-0002-8363-7423"
 OWN_FAMILY_NAME = "Hadij-ElHouati"
+# Spellings of the surname found on patent documents; each one is searched as an inventor on EPO OPS.
+SURNAME_VARIANTS = ["Hadij", "Hadij-ElHouati", "Hadij El Houati", "Hadij ElHouati", "HadijElHouati"]
 ROOT = Path(__file__).resolve().parent.parent
 BIB_DIR = ROOT / "_bibliography"
 USER_AGENT = "abdelix.com-bibliography-sync (mailto:abdel.he.93@gmail.com)"
@@ -232,11 +234,43 @@ def ops_text(value):
 
 
 def ops_names(parties, kind):
-    """Names of inventors/applicants, preferring the 'original' spelling over EPODOC."""
+    """Names of inventors/applicants.
+
+    OPS lists each person in an 'original' and an 'epodoc' spelling. The original one reads
+    better, but on some documents it is incomplete, so the longer of the two lists is used.
+    """
     people = as_list((parties.get(f"{kind}s") or {}).get(kind))
-    original = [p for p in people if p.get("@data-format") == "original"]
-    names = [ops_text(p[f"{kind}-name"]["name"]) for p in (original or people)]
-    return [re.sub(r"\s*\[[A-Z]{2}\]\s*$", "", n).strip().strip(",").strip() for n in names]
+    by_format = {}
+    for p in people:
+        name = ops_text((p.get(f"{kind}-name") or {}).get("name"))
+        name = re.sub(r"\s*\[[A-Z]{2}\]\s*$", "", name).strip().strip(",").strip()
+        by_format.setdefault(p.get("@data-format"), []).append(name)
+    original, epodoc = by_format.get("original", []), by_format.get("epodoc", [])
+    return original if len(original) >= len(epodoc) else epodoc
+
+
+def ops_all_names(parties, kind):
+    """Every spelling of every inventor/applicant, for matching the author's name."""
+    return [ops_text((p.get(f"{kind}-name") or {}).get("name")) for p in as_list((parties.get(f"{kind}s") or {}).get(kind))]
+
+
+def org_case(name):
+    """'NATIONAL RESEARCH COUNCIL OF CANADA' -> 'National Research Council of Canada'."""
+    if not name.isupper():
+        return name
+    small = {"of", "de", "del", "la", "las", "los", "the", "and", "y", "for", "et", "du", "des"}
+    words = name.title().split()
+    return " ".join(w.lower() if i and w.lower() in small else w for i, w in enumerate(words))
+
+
+def ops_title(bib):
+    """English title, preferring an official one over a machine translation."""
+    titles = [t for t in as_list(bib.get("invention-title")) if ops_text(t)]
+    english = [t for t in titles if t.get("@lang") == "en"]
+    official = [t for t in english if "machine-translation" not in ops_text(t).lower()]
+    title = clean_text(ops_text((official or english or titles or [{}])[0]))
+    title = re.sub(r"\s*\(Machine-translation.*?\)\s*$", "", title, flags=re.I)
+    return title.capitalize() if title.isupper() else title
 
 
 def is_self(name):
@@ -268,6 +302,12 @@ def display_number(country, number, kind):
 def from_epo():
     """Patent families on EPO Open Patent Services where the author is an inventor.
 
+    1. search published documents by inventor name (SURNAME_VARIANTS); OPS returns one
+       document per family, often a national (ES, CA) publication;
+    2. list every publication of each matching family;
+    3. describe the family from its preferred publication (WO, then EP, then US, ...),
+       which carries the official English title and the full inventor list.
+
     Needs EPO_OPS_KEY / EPO_OPS_SECRET (environment or .env); returns [] without them.
     """
     key, secret = os.environ.get("EPO_OPS_KEY"), os.environ.get("EPO_OPS_SECRET")
@@ -280,52 +320,61 @@ def from_epo():
         headers={"Authorization": f"Basic {basic}", "Content-Type": "application/x-www-form-urlencoded"},
         data=b"grant_type=client_credentials",
     )["access_token"]
-    query = urllib.parse.urlencode({"q": 'in="hadij" or in="hadij-elhouati" or in="hadijelhouati"', "Range": "1-100"})
-    result = fetch_json(
-        f"https://ops.epo.org/3.2/rest-services/published-data/search/biblio?{query}",
-        headers={"Authorization": f"Bearer {token}"},
-    )
-    search = ((result or {}).get("ops:world-patent-data") or {}).get("ops:biblio-search") or {}
-    families = {}
-    for item in as_list((search.get("ops:search-result") or {}).get("exchange-documents")):
+
+    def ops(path):
+        result = fetch_json(f"https://ops.epo.org/3.2/rest-services/{path}", headers={"Authorization": f"Bearer {token}"})
+        return (result or {}).get("ops:world-patent-data") or {}
+
+    def docdb_id(document_ids):
+        docdb = next((d for d in as_list(document_ids) if d.get("@document-id-type") == "docdb"), None) or {}
+        return {k: ops_text(docdb.get(k)) for k in ("country", "doc-number", "kind", "date")}
+
+    # 1. search
+    cql = " or ".join(f'in="{variant.lower()}"' for variant in SURNAME_VARIANTS)
+    search = ops("published-data/search/biblio?" + urllib.parse.urlencode({"q": cql, "Range": "1-100"}))
+    found = {}
+    for item in as_list(((search.get("ops:biblio-search") or {}).get("ops:search-result") or {}).get("exchange-documents")):
         for doc in as_list(item.get("exchange-document")):
-            bib = doc.get("bibliographic-data") or {}
-            parties = bib.get("parties") or {}
-            inventors = ops_names(parties, "inventor")
-            if not any(is_self(name) for name in inventors):
-                continue  # another inventor who happens to match the query
-            ids = as_list((bib.get("publication-reference") or {}).get("document-id"))
-            docdb = next((d for d in ids if d.get("@document-id-type") == "docdb"), ids[0] if ids else {})
-            titles = as_list(bib.get("invention-title"))
-            title = next((t for t in titles if t.get("@lang") == "en"), titles[0] if titles else {})
-            families.setdefault(doc.get("@family-id") or doc.get("@doc-number"), []).append(
-                {
-                    "country": doc.get("@country", ""),
-                    "number": display_number(doc.get("@country", ""), doc.get("@doc-number", ""), doc.get("@kind", "")),
-                    "date": ops_text(docdb.get("date")),
-                    "title": clean_text(ops_text(title)),
-                    "inventors": [ops_person(n) for n in inventors],
-                    "holder": next(iter(ops_names(parties, "applicant")), ""),
-                }
-            )
+            parties = (doc.get("bibliographic-data") or {}).get("parties") or {}
+            if any(is_self(n) for n in ops_all_names(parties, "inventor")):
+                found.setdefault(doc.get("@family-id"), f"{doc['@country']}.{doc['@doc-number']}.{doc['@kind']}")
 
     preference = {"WO": 0, "EP": 1, "US": 2}
     entries = []
-    for docs in families.values():
-        docs.sort(key=lambda d: (preference.get(d["country"], 3), d["date"]))
-        main, others = docs[0], [d["number"] for d in docs[1:]]
-        holder = main["holder"]
+    for publication in found.values():
+        # 2. family members
+        family = ops(f"family/publication/docdb/{publication}")
+        members = []
+        for member in as_list((family.get("ops:patent-family") or {}).get("ops:family-member")):
+            ref = docdb_id((member.get("publication-reference") or {}).get("document-id"))
+            if ref["country"] and ref["doc-number"]:
+                members.append(ref)
+        if not members:
+            country, number, kind = publication.split(".")
+            members = [{"country": country, "doc-number": number, "kind": kind, "date": ""}]
+        members.sort(key=lambda m: (preference.get(m["country"], 3), m["date"] or "99999999"))
+        main = members[0]
+
+        # 3. bibliographic data of the preferred publication
+        biblio = ops(f"published-data/publication/docdb/{main['country']}.{main['doc-number']}.{main['kind']}/biblio")
+        doc = next(iter(as_list((biblio.get("exchange-documents") or {}).get("exchange-document"))), {})
+        bib = doc.get("bibliographic-data") or {}
+        parties = bib.get("parties") or {}
+        date = main["date"] or docdb_id((bib.get("publication-reference") or {}).get("document-id"))["date"]
+        holders = [org_case(h) for h in ops_names(parties, "applicant")]
+        number = display_number(main["country"], main["doc-number"], main["kind"])
+        others = [display_number(m["country"], m["doc-number"], m["kind"]) for m in members[1:]]
         entries.append(
             {
                 "type": "patent",
-                "title": main["title"].title() if main["title"].isupper() else main["title"],
-                "author": main["inventors"],
-                "holder": holder.title() if holder.isupper() else holder,
-                "number": main["number"],
-                "year": main["date"][:4] or None,
-                "month": int(main["date"][4:6]) if len(main["date"]) >= 6 else None,
+                "title": ops_title(bib),
+                "author": [ops_person(n) for n in ops_names(parties, "inventor")],
+                "holder": ", ".join(dict.fromkeys(holders)),
+                "number": number,
+                "year": date[:4] or None,
+                "month": int(date[4:6]) if len(date) >= 6 else None,
                 "note": "Also published as " + ", ".join(dict.fromkeys(others)) if others else None,
-                "url": f"https://worldwide.espacenet.com/patent/search?q=pn%3D{main['number']}",
+                "url": f"https://worldwide.espacenet.com/patent/search?q=pn%3D{number}",
                 "bibtex_show": "true",
             }
         )
