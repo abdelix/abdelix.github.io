@@ -135,8 +135,8 @@ bing_site_verification: # out your bing-site-verification ID (Bing Webmaster)
 # Blog
 # -----------------------------------------------------------------------------
 
-blog_name: Blog # blog_name will be displayed in your blog page
-blog_description: notes on photonics, simulation and design tooling
+blog_name: Evanescently Coupled Ideas # blog_name will be displayed in your blog page
+blog_description: ideas that get transmitted without touching, like light evanescently coupling between waveguides
 permalink: /blog/:year/:title/
 lsi: false # produce an index for related posts
 
