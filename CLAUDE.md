@@ -37,7 +37,7 @@ There is no test suite. A change is validated by running `jekyll build` and chec
 - **CI:**
   - `.github/workflows/deploy.yml` builds on pushes to `master` and publishes `_site` to the `gh-pages` branch. GitHub Pages must be set to serve from `gh-pages`.
   - `.github/workflows/sync-orcid.yml` runs the sync every Monday, commits any changes, and then starts `deploy.yml` explicitly. It has to, because a push made with `GITHUB_TOKEN` does not trigger other workflows.
-- **Projects:** the old 2013–2014 student projects live in `_projects/` with `category: archived` and an "Archived project" notice. Their permalinks `/projects/<name>/` match the legacy site.
+- **Projects:** `_projects/` entries use `category: current` (active work, e.g. camfr3) or `category: archived` (the old 2013–2014 student projects, which carry an "Archived project" notice). `_pages/projects.md` lists them in that order via `display_categories`. Permalinks `/projects/<name>/` match the legacy site.
 - **Page descriptions:** front-matter `description` values end up in `<meta>` tags, so keep them plain text with no HTML links.
 - `downloads/memo.html` is a legacy standalone file, kept only so that existing external links keep working.
 

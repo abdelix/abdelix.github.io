@@ -2,10 +2,10 @@
 layout: page
 title: projects
 permalink: /projects/
-description: Archived side projects from my student years (2013–2014). They are kept for reference and are no longer maintained.
+description: What I'm working on now, and archived side projects from my student years (2013–2014), which are kept for reference and no longer maintained.
 nav: true
 nav_order: 4
-display_categories: [archived]
+display_categories: [current, archived]
 horizontal: false
 ---
 
