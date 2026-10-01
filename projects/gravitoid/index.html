@@ -55,7 +55,7 @@ ninja.data = [{
           },
         },{id: "nav-projects",
           title: "projects",
-          description: "Archived side projects from my student years (2013–2014). They are kept for reference and are no longer maintained.",
+          description: "What I&#39;m working on now, and archived side projects from my student years (2013–2014), which are kept for reference and no longer maintained.",
           section: "Navigation",
           handler: () => {
             window.location.href = "/projects/";
@@ -67,7 +67,12 @@ ninja.data = [{
           handler: () => {
             window.location.href = "/blog/";
           },
-        },{id: "projects-geo-traceroute",
+        },{id: "projects-camfr3",
+          title: 'camfr3',
+          description: "The CAMFR eigenmode expansion solver, ported to Python 3 and published on PyPI.",
+          section: "Projects",handler: () => {
+              window.location.href = "/projects/camfr3/";
+            },},{id: "projects-geo-traceroute",
           title: 'geo-traceroute',
           description: "A traceroute that shows the geographical location of intermediate nodes.",
           section: "Projects",handler: () => {
